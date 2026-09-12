@@ -1,142 +1,93 @@
 import './style.css';
 
-const games = [
-  ['Snake', 'snake'], ['2048', '2048'], ['Pong', 'pong'], ['Astro', 'astro']
-];
+const discord='https://discord.gg/6ncAaPaj';
+const games=['Snake','2048','Pong','Astro'];
+const friends=['onyx','mark','adrian','alex','aj'];
+const app=document.querySelector('#app');
 
-const app = document.querySelector('#root');
-app.innerHTML = `
-  <div class="shell">
-    <header class="topbar">
-      <div class="brand"><span>Marcus</span> <b>Airflow</b></div>
-      <div class="address">
-        <button id="back">‹</button><button id="forward">›</button>
-        <input id="url" value="https://www.google.com" aria-label="Address" />
-        <button id="go">Go</button>
-      </div>
-      <button id="home" class="icon">⌂</button>
-    </header>
+app.innerHTML=`
+<div class="app">
+<header class="top">
+  <button class="mobile-menu" id="menu">☰</button>
+  <div class="brand"><span>Marcus</span> <b>Airflow</b><i>v1</i></div>
+  <div class="omnibox"><button id="back">‹</button><button id="forward">›</button><input id="address" placeholder="Search or enter a URL"><button id="go">↵</button></div>
+  <button class="circle" id="theme">☼</button>
+</header>
+<aside id="side">
+  <div class="section-label">WORKSPACE</div>
+  <button class="nav active" data-page="home">⌂ <span>Home</span></button>
+  <button class="nav" data-page="videos">▶ <span>Videos</span></button>
+  <button class="nav" data-page="games">◆ <span>Games</span></button>
+  <button class="nav" data-page="friends">● <span>Friends</span></button>
+  <div class="section-label">BOOKMARKS</div>
+  <a class="nav" href="https://www.youtube.com" target="_blank">▶ <span>YouTube</span></a>
+  <a class="nav" href="${discord}" target="_blank">◎ <span>Discord Group</span></a>
+  <div class="side-bottom"><small>NO LOGIN REQUIRED</small><b>v1</b></div>
+</aside>
+<main id="main"></main>
+<aside class="ai" id="ai">
+  <div class="ai-title"><span>✦ Airflow AI</span><button id="minAI">−</button></div>
+  <div class="chat" id="chat"><div class="msg bot">Welcome to Marcus Airflow. Ask me anything.</div></div>
+  <div class="composer"><input id="prompt" placeholder="Message Airflow AI…"><button id="send">↑</button></div>
+</aside>
+<footer>Thanks ChatGPT ♡</footer>
+</div>`;
 
-    <aside class="sidebar">
-      <h3>Bookmarks</h3>
-      <button class="nav active" data-page="home">🏠 Home</button>
-      <button class="nav" data-page="videos">🎬 Videos</button>
-      <button class="nav" data-page="games">🎮 Games</button>
-      <button class="nav" data-page="friends">👥 Friends</button>
-      <a class="nav" href="https://discord.gg/6ncAaPaj" target="_blank" rel="noopener">💬 Discord Group</a>
-      <div class="side-note">No login required.</div>
-      <div class="version">v1</div>
-    </aside>
-
-    <main id="content"></main>
-
-    <section class="ai">
-      <div class="ai-head"><span>🤖 Airflow AI</span><button id="collapse">−</button></div>
-      <div id="chat" class="chat">
-        <div class="bubble bot">Yo! I'm Airflow AI. Ask me something.</div>
-      </div>
-      <div class="chatbox">
-        <input id="prompt" placeholder="Ask Airflow AI..." />
-        <button id="send">➤</button>
-      </div>
-    </section>
-
-    <footer>Thanks ChatGPT ♡</footer>
-  </div>
-`;
-
-const content = document.querySelector('#content');
-
-function pageHome() {
-  content.innerHTML = `
-    <div class="welcome">
-      <div class="logo">Marcus <span>Airflow</span></div>
-      <p>Your browser. Your crew. Your airflow.</p>
-      <div class="quick">
-        <button data-url="https://www.youtube.com">YouTube</button>
-        <button data-page="videos">Community Videos</button>
-        <button data-page="games">Built-in Games</button>
-        <button data-page="friends">Friend Hub</button>
-      </div>
-    </div>`;
-  content.querySelectorAll('[data-url]').forEach(b => b.onclick=()=>navigate(b.dataset.url));
-  content.querySelectorAll('[data-page]').forEach(b => b.onclick=()=>showPage(b.dataset.page));
+const main=document.querySelector('#main');
+function setActive(p){document.querySelectorAll('.nav[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===p))}
+function home(){
+ main.innerHTML=`<section class="hero">
+   <div class="eyebrow">WELCOME TO</div><h1>Marcus <span>Airflow</span></h1>
+   <p>A browser made by the crew, for the crew.</p>
+   <div class="search-card"><span>⌕</span><input id="heroSearch" placeholder="Search the web or enter a URL…"><button id="heroGo">Go</button></div>
+   <div class="tiles">
+    <button data-page="videos"><strong>▶</strong><b>Community Videos</b><small>Upload & watch</small></button>
+    <button data-page="games"><strong>◆</strong><b>Built-in Games</b><small>Play instantly</small></button>
+    <button data-page="friends"><strong>●</strong><b>Friend Hub</b><small>Onyx · Mark · Adrian · Alex · AJ</small></button>
+   </div>
+ </section>`;
+ document.querySelector('#heroGo').onclick=()=>navigate(document.querySelector('#heroSearch').value);
+ document.querySelector('#heroSearch').onkeydown=e=>e.key==='Enter'&&navigate(e.target.value);
+ main.querySelectorAll('[data-page]').forEach(x=>x.onclick=()=>show(x.dataset.page));
 }
-
-function pageVideos() {
-  content.innerHTML = `
-    <div class="page">
-      <h1>🎬 Community Videos</h1>
-      <p>Upload videos without creating an account. This v1 demo keeps selected videos in your browser.</p>
-      <label class="upload"><input id="videoInput" type="file" accept="video/*"> ⬆ Choose a video</label>
-      <div id="videoGrid" class="video-grid"></div>
-    </div>`;
-  const grid = content.querySelector('#videoGrid');
-  content.querySelector('#videoInput').onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    grid.insertAdjacentHTML('afterbegin',
-      `<article class="video-card"><video controls src="${url}"></video><b>${escapeHtml(file.name)}</b><small>Anonymous uploader</small></article>`);
-  };
+function videos(){
+ main.innerHTML=`<section class="page"><div class="page-head"><div><div class="eyebrow">COMMUNITY</div><h2>Videos</h2><p>Drop a video in and it appears here for this browser session.</p></div><label class="upload">＋ Upload video<input id="vid" type="file" accept="video/*"></label></div><div class="video-grid" id="vg"><div class="empty">No community videos yet.<br><small>Upload the first one.</small></div></div></section>`;
+ document.querySelector('#vid').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const u=URL.createObjectURL(f),g=document.querySelector('#vg');
+  if(g.querySelector('.empty'))g.innerHTML='';
+  const card=document.createElement('article');card.className='video';
+  card.innerHTML=`<video controls src="${u}"></video><b>${esc(f.name)}</b><small>Anonymous · this session</small>`;
+  g.prepend(card);
+ };
 }
-
-function pageGames() {
-  content.innerHTML = `
-    <div class="page"><h1>🎮 Built-in Games</h1><div class="game-grid">
-      ${games.map(([name,id])=>`<button class="game" data-game="${id}">${name}<small>Play</small></button>`).join('')}
-    </div><div id="gameArea"></div></div>`;
-  content.querySelectorAll('.game').forEach(b=>b.onclick=()=>launchGame(b.dataset.game));
+function gamesPage(){
+ main.innerHTML=`<section class="page"><div class="eyebrow">ARCADE</div><h2>Built-in Games</h2><div class="game-grid">${games.map(x=>`<button class="game" data-game="${x}"><span>${x==='2048'?'▦':x==='Snake'?'〰':x==='Pong'?'◉':'✦'}</span><b>${x}</b><small>Play now →</small></button>`).join('')}</div><div id="gameArea"></div></section>`;
+ document.querySelectorAll('.game').forEach(b=>b.onclick=()=>launch(b.dataset.game));
 }
-
-function pageFriends() {
-  content.innerHTML = `
-    <div class="page"><h1>👥 Friend Hub</h1><p>Just buttons. No accounts.</p>
-    <div class="friends">${['onyx','mark','adrian','alex','aj'].map(x=>`<button>${x}</button>`).join('')}</div></div>`;
+function friendsPage(){
+ main.innerHTML=`<section class="page"><div class="eyebrow">THE CREW</div><h2>Friend Hub</h2><p>Quick buttons for the Marcus Airflow crew.</p><div class="friends">${friends.map(x=>`<button><span>${x[0].toUpperCase()}</span>${x}</button>`).join('')}</div></section>`;
 }
+function show(p){setActive(p);({home,videos,games:gamesPage,friends:friendsPage}[p]||home)()}
+function navigate(v){if(!v)return;if(!/^https?:\/\//i.test(v))v='https://www.google.com/search?q='+encodeURIComponent(v);document.querySelector('#address').value=v;window.open(v,'_blank','noopener')}
+document.querySelector('#go').onclick=()=>navigate(document.querySelector('#address').value);
+document.querySelector('#address').onkeydown=e=>e.key==='Enter'&&navigate(e.target.value);
+document.querySelectorAll('.nav[data-page]').forEach(x=>x.onclick=()=>show(x.dataset.page));
+document.querySelector('#minAI').onclick=()=>document.querySelector('#ai').classList.toggle('min');
+document.querySelector('#menu').onclick=()=>document.querySelector('#side').classList.toggle('open');
+document.querySelector('#theme').onclick=()=>document.body.classList.toggle('light');
 
-function showPage(name) {
-  document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active', x.dataset.page===name));
-  ({home:pageHome,videos:pageVideos,games:pageGames,friends:pageFriends}[name]||pageHome)();
+function ask(){
+ const i=document.querySelector('#prompt'),t=i.value.trim();if(!t)return;
+ add(t,'user');i.value='';
+ setTimeout(()=>add("I'm the Marcus Airflow AI demo. Connect your preferred AI API on a server to make this a full AI assistant.",'bot'),250)
 }
-function navigate(url) {
-  if (!/^https?:\/\//i.test(url)) url='https://www.google.com/search?q='+encodeURIComponent(url);
-  document.querySelector('#url').value=url;
-  window.open(url, '_blank', 'noopener');
-}
-document.querySelector('#go').onclick=()=>navigate(document.querySelector('#url').value);
-document.querySelector('#url').onkeydown=e=>{if(e.key==='Enter')navigate(e.target.value)};
-document.querySelector('#home').onclick=()=>showPage('home');
-document.querySelectorAll('.nav[data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+function add(t,c){const el=document.createElement('div');el.className='msg '+c;el.textContent=t;document.querySelector('#chat').append(el);document.querySelector('#chat').scrollTop=99999}
+document.querySelector('#send').onclick=ask;document.querySelector('#prompt').onkeydown=e=>e.key==='Enter'&&ask();
 
-document.querySelector('#collapse').onclick=()=>{
-  document.querySelector('.ai').classList.toggle('closed');
-  document.querySelector('#collapse').textContent=document.querySelector('.ai').classList.contains('closed')?'+':'−';
-};
-
-function addChat(text, cls) {
-  const c=document.querySelector('#chat');
-  c.insertAdjacentHTML('beforeend', `<div class="bubble ${cls}">${escapeHtml(text)}</div>`);
-  c.scrollTop=c.scrollHeight;
+function launch(name){
+ const a=document.querySelector('#gameArea');
+ a.innerHTML=`<div class="game-panel"><h3>${name}</h3><p>This game slot is built into Marcus Airflow. Add the full game logic here.</p><button onclick="this.textContent='Launching…'">Start ${name}</button></div>`;
 }
-document.querySelector('#send').onclick=askAI;
-document.querySelector('#prompt').onkeydown=e=>{if(e.key==='Enter')askAI()};
-function askAI(){
-  const input=document.querySelector('#prompt'), text=input.value.trim();
-  if(!text)return;
-  addChat(text,'user'); input.value='';
-  setTimeout(()=>addChat("I'm the built-in demo AI. Connect an AI API on your server to make me fully conversational.",'bot'),250);
-}
-
-function launchGame(id) {
-  const area=document.querySelector('#gameArea');
-  if(id==='2048') {
-    let n=Array(16).fill(0); n[Math.floor(Math.random()*16)]=2; render2048();
-    function render2048(){area.innerHTML='<div class="board">'+n.map((x,i)=>`<button class="tile" data-i="${i}">${x||''}</button>`).join('')+'</div><p>Click a tile to add a 2.</p>'; area.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{if(!n[b.dataset.i]){n[b.dataset.i]=2;render2048()}})}
-  } else {
-    area.innerHTML=`<div class="mini-game"><h2>${id.toUpperCase()}</h2><p>This built-in game slot is ready for the next update.</p><button onclick="this.textContent='Nice!'">Start</button></div>`;
-  }
-}
-function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-
-showPage('home');
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+show('home');
